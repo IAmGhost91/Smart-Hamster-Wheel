@@ -1,0 +1,207 @@
+esphome:
+  name: hamsterrad
+  friendly_name: Hamsterrad
+
+# Zentrale Variablen für einfache Wartung
+substitutions:
+  rad_durchmesser_cm: 31.4
+  impulse_pro_umdrehung: 4.0
+  led_debugging_aktiv: 0
+
+esp32:
+  board: esp32-c6-devkitc-1
+  framework:
+    type: esp-idf
+
+# Standard-Komponenten
+logger:
+api:
+  encryption:
+    key: !secret hamsterrad_api
+ota:
+  platform: esphome
+  password: !secret hamsterrad_ota
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+captive_portal:
+web_server:
+  port: 80
+  version: 3
+
+######################
+# GLOBALE VARIABLEN & KONSTANTEN
+######################
+
+globals:
+  - id: hamsterrad_impulse_gesamt
+    type: int
+    restore_value: yes
+    initial_value: '0'
+  - id: hamsterrad_impulse_taglich
+    type: int
+    restore_value: no
+    initial_value: '0'
+  # OPTIMIERT: Datentyp auf int geändert, da nur ganze Impulse gezählt werden
+  - id: hamsterrad_zaehler_intervall
+    type: int
+    initial_value: '0'
+  - id: rad_umfang_meter
+    type: float
+    initial_value: '(${rad_durchmesser_cm} / 100.0) * M_PI'
+
+# ENTFERNT: Der separate interval-Block wird nicht mehr benötigt.
+
+######################
+# BUTTONS FÜR HOME ASSISTANT
+######################
+
+button:
+  # Button zum Zurücksetzen des GESAMT-Zählers
+  - platform: template
+    name: "Gesamtzähler Zurücksetzen"
+    icon: "mdi:delete-sweep"
+    # OPTIMIERT: 'internal: true' entfernt, damit der Button in HA sichtbar ist.
+    # Zusätzliche Updates für sofortige Aktualisierung aller abhängigen Sensoren.
+    on_press:
+      - lambda: 'id(hamsterrad_impulse_gesamt) = 0;'
+      - component.update: umdrehungen_gesamt_sensor
+      - component.update: distanz_gesamt
+      - component.update: impulse_gesamt
+
+  # Button zum Zurücksetzen des TAGES-Zählers
+  - platform: template
+    name: "Tageszähler Zurücksetzen"
+    icon: "mdi:delete-clock"
+    on_press:
+      - lambda: 'id(hamsterrad_impulse_taglich) = 0;'
+      - component.update: distanz_taglich
+
+######################
+# SENSOREN
+######################
+
+sensor:
+  # 1. Sensor für den Gesamtzähler
+  - platform: template
+    name: "Umdrehungen Gesamt"
+    id: umdrehungen_gesamt_sensor
+    unit_of_measurement: 'U'
+    icon: "mdi:counter"
+    state_class: total_increasing
+    update_interval: 10s
+    lambda: |-
+      return (float)id(hamsterrad_impulse_gesamt) / ${impulse_pro_umdrehung};
+    accuracy_decimals: 2
+    
+  # 2. Sensor für die U/min
+  - platform: template
+    name: "U/min"
+    id: hamsterrad_u_min_sensor
+    unit_of_measurement: 'U/min' # Standard-Einheit für Umdrehungen/Minute
+    icon: "mdi:speedometer-slow"
+    state_class: measurement
+    device_class: frequency # Semantisch korrekte Klasse für Frequenz
+    update_interval: 10s     # Der Sensor hat jetzt seinen eigenen Taktgeber
+    lambda: |-
+      // Die komplette Logik befindet sich jetzt hier:
+      float impulse_pro_minute = id(hamsterrad_zaehler_intervall) * 6.0;
+      id(hamsterrad_zaehler_intervall) = 0; // Setzt den Zähler zurück
+      return impulse_pro_minute; // Gibt den berechneten Wert zurück
+    filters:
+      - multiply: !lambda 'return 1.0 / ${impulse_pro_umdrehung};'
+      - sliding_window_moving_average:
+          window_size: 6
+          send_every: 1
+
+  # 3. Sensor für die Gesamt-Distanz
+  - platform: template
+    name: "Distanz Gesamt"
+    id: distanz_gesamt
+    unit_of_measurement: 'km'
+    icon: "mdi:map-marker-distance"
+    state_class: total_increasing
+    update_interval: 10s
+    lambda: |-
+      return (float)id(hamsterrad_impulse_gesamt) / ${impulse_pro_umdrehung} * id(rad_umfang_meter) / 1000.0;
+    accuracy_decimals: 3
+
+  # 4. Sensor für die Geschwindigkeit
+  - platform: template
+    name: "Geschwindigkeit"
+    unit_of_measurement: 'km/h'
+    icon: "mdi:run"
+    state_class: measurement
+    update_interval: 10s
+    lambda: |-
+      float umdrehungen_pro_minute = id(hamsterrad_u_min_sensor).state;
+      return umdrehungen_pro_minute * id(rad_umfang_meter) * 60.0 / 1000.0;
+    accuracy_decimals: 2
+    
+  # 5. Sensor für die TAGES-Distanz
+  - platform: template
+    name: "Distanz Täglich"
+    id: distanz_taglich
+    unit_of_measurement: 'km'
+    icon: "mdi:calendar-today"
+    state_class: total_increasing
+    update_interval: 10s
+    lambda: |-
+      return (float)id(hamsterrad_impulse_taglich) / ${impulse_pro_umdrehung} * id(rad_umfang_meter) / 1000.0;
+    accuracy_decimals: 3
+
+  # 6. Sensor für die Gesamt-Impulse als Rohwert
+  - platform: template
+    name: "Impulse Gesamt"
+    id: impulse_gesamt
+    icon: "mdi:pulse"
+    unit_of_measurement: "Impulse"
+    state_class: total_increasing
+    update_interval: 10s
+    lambda: |-
+      return (float)id(hamsterrad_impulse_gesamt);
+    accuracy_decimals: 0
+
+######################
+# LICHT & IMPULS-ZÄHLER
+######################
+
+light:
+  - platform: esp32_rmt_led_strip
+    rgb_order: RGB
+    pin: GPIO8
+    num_leds: 1
+    chipset: ws2812
+    name: "Status LED"
+    id: status_led
+    default_transition_length: 0s
+    internal: true
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO5
+      mode: INPUT_PULLDOWN
+    name: "Sensor Impuls"
+    internal: true
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+    on_press:
+      then:
+        # OPTIMIERT: Alle Zähler in einer einzigen, effizienten Lambda-Aktion
+        - lambda: |-
+            id(hamsterrad_impulse_gesamt) += 1;
+            id(hamsterrad_impulse_taglich) += 1;
+            id(hamsterrad_zaehler_intervall) += 1;
+        - if:
+            condition:
+              lambda: 'return ${led_debugging_aktiv} != 0;'
+            then:
+              - light.turn_on:
+                  id: status_led
+                  brightness: 0.25
+                  blue: 1.0
+              - delay: 100ms
+              - light.turn_off:
+                  id: status_led
