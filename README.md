@@ -8,83 +8,6 @@ Das System erfasst die Aktivität des Hamsters über einen induktiven Sensor, ve
 
 ---
 
-## Features
-
-* **Live-Geschwindigkeit** in km/h.
-* **Tagesdistanz** (wird täglich um 20:00 Uhr zurückgesetzt).
-* **Gesamtdistanz** (persistent gespeichert auf dem ESP).
-* **Rekord-Tracking** für die höchste Geschwindigkeit und die längste Tagesstrecke (über `input_number` Helfer in HA).
-* **"Hamster-Reisetagebuch"** als Lovelace Markdown-Karte, die die Gesamtdistanz in eine virtuelle Reise umrechnet.
-* **Push-Benachrichtigungen** am Morgen mit den "Stats der Nacht" (via Home Assistant Automation).
-
----
-
-## Technische Funktionsweise & Schaltung
-
-Das Herzstück des Projekts ist eine custom Platine, die die Stromversorgung und Signalverarbeitung übernimmt.
-
-1.  **Stromversorgung:** Das System wird über den USB-C-Anschluss des **Waveshare ESP32-C6-Zero** mit 5V versorgt.
-2.  **Sensor-Spannung (Step-Up):** Der induktive Sensor (H1) benötigt eine höhere Spannung (12V oder 24V). Diese wird durch einen **Pololu Step-Up Volt Regulator (U2)** erzeugt, der seine Eingangsspannung (5V) direkt vom ESP32-C6 (Pin 1) erhält.
-3.  **Signalverarbeitung (Voltage Divider):** Der Sensor (H1) gibt ein 12V/24V-Signal aus. Dies wäre zu hoch für den ESP. Daher wird das Signal über einen **Spannungsteiler (R1/R2)** auf ein für den ESP (GPIO5, Pin 8) sicheres 3.3V-Level reduziert.
-4.  **Widerstands-Wahl (R2):**
-    * Verwende **R2 = 10kΩ** bei einem **12V**-Sensor.
-    * Verwende **R2 = 22kΩ** bei einem **24V**-Sensor.
-    * R1 ist immer **3.3kΩ**.
-5.  **Impuls-Erfassung:** 4 Reißzwecken wurden in das Laufrad eingedrückt und verklebt. Der induktive Sensor erfasst diese Metallstifte und erzeugt **4 Impulse pro Umdrehung**.
-
-<img src="Platine:PCB/Stromplan.png" alt="Stromplan" width="600" />
-
----
-
-## Benötigte Hardware (BOM)
-
-* **MCU:** Waveshare ESP32-C6-Zero
-* **Sensor:** 3-Draht Induktiver Näherungssensor (z.B. LJ12A3-4-Z/BX, NPN, 12-24V)
-* **Spannungsregler:** Pololu Step-Up Volt Regulator (z.B. 12V oder 24V je nach Sensor)
-* **Widerstände:**
-    * 1x 3.3kΩ (R1)
-    * 1x 10kΩ (R2 für 12V) ODER 22kΩ (R2 für 24V)
-* **Sonstiges:**
-    * Schraubterminal (3-Pin) für Sensoranschluss (H1)
-    * Stiftleisten für ESP und Regler
-    * 4x Reißzwecken
-* **Platine:** Custom PCB (Gerber/Design-Dateien in `/Hardware/PCB/`)
-* **Gehäuse:** Custom 3D-Druck (STL-Dateien in `/Hardware/Case/`)
-
----
-
-## Software-Installation
-
-### 1. ESPHome
-
-Der Code für den ESP32-C6 befindet sich in `Software/ESPHome/hamsterrad-esphome.yaml`.
-
-1.  **Secrets:** Diese Konfiguration verwendet Secrets! Stelle sicher, dass du deine `secrets.yaml` (im ESPHome Hauptverzeichnis) mit den WLAN-Daten, einem API-Key und einem OTA-Passwort füllst, die in der `hamsterrad-esphome.yaml` referenziert werden.
-    ```yaml
-    # Beispiel für deine secrets.yaml
-    wifi_ssid: "DEIN_WLAN_NAME"
-    wifi_password: "DEIN_WLAN_PASSWORT"
-    hamsterrad_api_key: "ERSTELLE_EINEN_SICHEREN_API_KEY"
-    hamsterrad_ota_password: "ERSTELLE_EIN_OTA_PASSWORT"
-    ```
-2.  **Anpassungen:** Überprüfe die `substitutions` oben in der YAML-Datei. Passe ggf. den `rad_durchmesser_cm` (bei dir 31.4) und die `impulse_pro_umdrehung` (bei dir 4.0) an.
-3.  **Flashen:** Kompiliere und flashe den Code auf deinen ESP32-C6.
-
-### 2. Home Assistant
-
-Der Code für die Lovelace-Karte befindet sich in `software/home-assistant/Karte Home Assistant Code.rtf`.
-
-1.  **Helfer-Entitäten:** Die Karte ist auf diverse Helfer und Sensoren angewiesen, die du in Home Assistant anlegen musst (z.B. unter "Helfer" in den Einstellungen):
-    * `sensor.hamsterrad_geschwindigkeit_max_12h` (z.B. über einen `max` Hilfssensor)
-    * `sensor.hamsterrad_geschwindigkeit_durchschnitt_wenn_aktiv` (z.B. über einen `average` Hilfssensor)
-    * `input_number.hamsterrad_distanz_taglich_rekord`
-    * `input_number.hamsterrad_geschwindigkeit_rekord`
-    * *...sowie die Sensoren, die von ESPHome bereitgestellt werden (`sensor.hamsterrad_distanz_taglich`, `sensor.hamsterrad_geschwindigkeit` usw.)*
-2.  **Lovelace-Karte:** Erstelle eine neue "Manuelle Karte" in deinem Dashboard und kopiere den Inhalt der `Karte Home Assistant Code.rtf` hinein.
-3.  **Anpassung:** Passe die Kilometer-Marken und Orte im "locations"-Dictionary in der Markdown-Karte an deinen Wohnort an.
-
----
-
 ## Projekt-Entstehung & Geschichte
 
 Wenn du mehr über die Entstehungsgeschichte, die Motivation und die Herausforderungen (z.B. die "Verhandlungen" mit der Verlobten) erfahren möchtest, lies den originalen Magazin-Artikel, den wir für dieses Projekt geschrieben haben.
@@ -133,13 +56,86 @@ Ich bin gespannt, ob er es eines Tages wirklich bis nach Kanada schafft!
 
 ---
 
-## Galerie & Mediendateien
 
-Hier sind weitere Bilder vom Aufbau und den Komponenten.
+## Features
+
+* **Live-Geschwindigkeit** in km/h.
+* **Tagesdistanz** (wird täglich um 20:00 Uhr zurückgesetzt).
+* **Gesamtdistanz** (persistent gespeichert auf dem ESP).
+* **Rekord-Tracking** für die höchste Geschwindigkeit und die längste Tagesstrecke (über `input_number` Helfer in HA).
+* **"Hamster-Reisetagebuch"** als Lovelace Markdown-Karte, die die Gesamtdistanz in eine virtuelle Reise umrechnet.
+* **Push-Benachrichtigungen** am Morgen mit den "Stats der Nacht" (via Home Assistant Automation).
+
+---
+
+## Technische Funktionsweise & Schaltung
+
+Das Herzstück des Projekts ist eine custom Platine, die die Stromversorgung und Signalverarbeitung übernimmt.
+
+1.  **Stromversorgung:** Das System wird über den USB-C-Anschluss des **Waveshare ESP32-C6-Zero** mit 5V versorgt.
+2.  **Sensor-Spannung (Step-Up):** Der induktive Sensor (H1) benötigt eine höhere Spannung (12V oder 24V). Diese wird durch einen **Pololu Step-Up Volt Regulator (U2)** erzeugt, der seine Eingangsspannung (5V) direkt vom ESP32-C6 (Pin 1) erhält.
+3.  **Signalverarbeitung (Voltage Divider):** Der Sensor (H1) gibt ein 12V/24V-Signal aus. Dies wäre zu hoch für den ESP. Daher wird das Signal über einen **Spannungsteiler (R1/R2)** auf ein für den ESP (GPIO5, Pin 8) sicheres 3.3V-Level reduziert.
+4.  **Widerstands-Wahl (R2):**
+    * Verwende **R2 = 10kΩ** bei einem **12V**-Sensor.
+    * Verwende **R2 = 22kΩ** bei einem **24V**-Sensor.
+    * R1 ist immer **3.3kΩ**.
+5.  **Impuls-Erfassung:** 4 Reißzwecken wurden in das Laufrad eingedrückt und verklebt. Der induktive Sensor erfasst diese Metallstifte und erzeugt **4 Impulse pro Umdrehung**.
+
+<img src="Platine%20%3A%20PCB/Stromplan.png" alt="Stromplan" width="600" />
+
+---
+
+## Benötigte Hardware (BOM)
+
+* **MCU:** Waveshare ESP32-C6-Zero oder ähnlich
+* **Sensor:** 3-Draht Induktiver Näherungssensor (z.B. LJ5A3-1-Z/AY, PNP, NO, M5 Gewinde)
+* **Spannungsregler:** Pololu Step-Up Volt Regulator (z.B. bei 12V der U3V16F12)
+* **Widerstände:**
+    * 1x 3.3kΩ (R1)
+    * 1x 10kΩ (R2 für 12V) ODER 22kΩ (R2 für 24V)
+* **Sonstiges:**
+    * Schraubterminal (3-Pin) für Sensoranschluss (H1)
+    * Stiftleisten für ESP und Regler
+    * 4x Reißzwecken
+* **Platine:** Custom PCB (Gerber/Design-Dateien in `/Platine%20%3A%20PCB/`)
+* **Gehäuse:** Custom 3D-Druck (STL-Dateien in `/Gehäuse%20%3A%203D%20Druck/`)
 
 | Testaufbau in der Küche | Bestückte Platine (V2.0) | Platine im 3D-Gehäuse |
 | :---: | :---: | :---: |
-| ![Testaufbau](media/Test%20Aufbau.jpg) | ![Bestückte Platine](media/Platine%20bestückt.jpg) | ![Platine im 3D-Gehäuse](media/Platine%20mit%203D%20Gehäuse.jpg) |
+| ![Testaufbau](Media/Test%20Aufbau.jpg) | ![Platine mit Gehäuse](Gehäuse%20%3A%203D%20Druck/Platine%20mit%203D%20Gehäuse.jpg) | ![3D Gehäuse](Gehäuse%20%3A%203D%20Druck/3D%20Gehäues.jpg) |
+
+
+---
+
+## Software-Installation
+
+### 1. ESPHome
+
+Der Code für den ESP32-C6 befindet sich in `Software/ESPHome/hamsterrad-esphome.yaml`.
+
+1.  **Secrets:** Diese Konfiguration verwendet Secrets! Stelle sicher, dass du deine `secrets.yaml` (im ESPHome Hauptverzeichnis) mit den WLAN-Daten, einem API-Key und einem OTA-Passwort füllst, die in der `hamsterrad-esphome.yaml` referenziert werden.
+    ```yaml
+    # Beispiel für deine secrets.yaml
+    wifi_ssid: "DEIN_WLAN_NAME"
+    wifi_password: "DEIN_WLAN_PASSWORT"
+    hamsterrad_api_key: "ERSTELLE_EINEN_SICHEREN_API_KEY"
+    hamsterrad_ota_password: "ERSTELLE_EIN_OTA_PASSWORT"
+    ```
+2.  **Anpassungen:** Überprüfe die `substitutions` oben in der YAML-Datei. Passe ggf. den `rad_durchmesser_cm` (bei dir 31.4) und die `impulse_pro_umdrehung` (bei dir 4.0) an.
+3.  **Flashen:** Kompiliere und flashe den Code auf deinen ESP32-C6.
+
+### 2. Home Assistant
+
+Der Code für die Lovelace-Karte befindet sich in `software/home-assistant/Karte Home Assistant Code.rtf`.
+
+1.  **Helfer-Entitäten:** Die Karte ist auf diverse Helfer und Sensoren angewiesen, die du in Home Assistant anlegen musst (z.B. unter "Helfer" in den Einstellungen):
+    * `sensor.hamsterrad_geschwindigkeit_max_12h` (z.B. über einen `max` Hilfssensor)
+    * `sensor.hamsterrad_geschwindigkeit_durchschnitt_wenn_aktiv` (z.B. über einen `average` Hilfssensor)
+    * `input_number.hamsterrad_distanz_taglich_rekord`
+    * `input_number.hamsterrad_geschwindigkeit_rekord`
+    * *...sowie die Sensoren, die von ESPHome bereitgestellt werden (`sensor.hamsterrad_distanz_taglich`, `sensor.hamsterrad_geschwindigkeit` usw.)*
+2.  **Lovelace-Karte:** Erstelle eine neue "Manuelle Karte" in deinem Dashboard und kopiere den Inhalt der `Karte Home Assistant Code.rtf` hinein.
+3.  **Anpassung:** Passe die Kilometer-Marken und Orte im "locations"-Dictionary in der Markdown-Karte an deinen Wohnort an.
 
 ---
 
