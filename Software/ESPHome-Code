@@ -228,7 +228,7 @@ binary_sensor:
     internal: true
     filters:
       - delayed_on: 5ms
-      - delayed_off: 5ms
+      - delayed_off: 10ms
     on_press:
       then:
         # OPTIMIERT: Alle Zähler in einer einzigen, effizienten Lambda-Aktion
