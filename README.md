@@ -4,7 +4,7 @@ Willkommen beim Projekt "Smartes Hamsterrad"! Dieses Repository enthält alle no
 
 Das System erfasst die Aktivität des Hamsters über einen induktiven Sensor, verarbeitet die Daten auf einem **ESP32-C6** und sendet sie an **Home Assistant**. Dort wird ein detailliertes Dashboard inklusive eines "Reisetagebuchs" generiert.
 
-<img src="Media/Home%20Assistant%20Dashboard.png" alt="Home Assistant Dashboard" width="600" />
+<img src="Media/Home-Assistant-Dashboard.png" alt="Home Assistant Dashboard" width="600" />
 
 ---
 
@@ -102,7 +102,7 @@ Das Herzstück des Projekts ist eine custom Platine, die die Stromversorgung und
 
 | Testaufbau in der Küche | Bestückte Platine (V2.0) | Platine im 3D-Gehäuse |
 | :---: | :---: | :---: |
-| ![Testaufbau](Media/Test-Aufbau.jpg) | ![Platine mit Gehäuse](Gehäuse-3D-Druck/Platine-mit-3D-Gehäuse.jpg) | ![Gehäuse geschlossen](Gehäuse-3D-Druck/Gehäuse-geschlossen.jpg) |
+| ![Testaufbau](Media/Test-Aufbau-2.jpg) | ![Platine mit Gehäuse](Gehäuse-3D-Druck/Platine-mit-3D-Gehäuse.jpg) | ![Gehäuse geschlossen](Gehäuse-3D-Druck/Gehäuse-geschlossen.jpg) |
 
 
 ---
