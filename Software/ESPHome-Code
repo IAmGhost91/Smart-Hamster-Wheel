@@ -227,8 +227,8 @@ binary_sensor:
     name: "Sensor Impuls"
     internal: true
     filters:
-      - delayed_on: 10ms
-      - delayed_off: 10ms
+      - delayed_on: 5ms
+      - delayed_off: 5ms
     on_press:
       then:
         # OPTIMIERT: Alle Zähler in einer einzigen, effizienten Lambda-Aktion
