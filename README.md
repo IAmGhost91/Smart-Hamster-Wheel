@@ -17,41 +17,38 @@ Wenn du mehr über die Entstehungsgeschichte, die Motivation und die Herausforde
 
 ### Kilometer-Zähler für kleine Pfoten: Mein Hamsterrad wird smart und erzählt Geschichten
 
-Wessen Traum ist es nicht, morgens aufzuwachen und genau zu wissen, wie viele Kilometer der eigene Hamster in der Nacht gelaufen ist? Welche Geschwindigkeit hatte er? Und wie weit ist er schon gekommen?
 
+Wessen Traum ist es nicht, morgens aufzuwachen und genau zu wissen, wie viele Kilometer der eigene Hamster in der Nacht gelaufen ist? Wie schnell war er? Und wie weit ist er insgesamt schon gekommen?
 Schon als Kind war ich absolut fasziniert, wenn ich in Büchern und Berichten las, welche unglaublichen Strecken diese winzigen Tiere in einer einzigen Nacht zurücklegen können. Ich fragte mich schon damals: „Kann das wirklich sein? Das will ich selbst erforschen.“ Leider hatte ich als Kind und Jugendlicher Pech: Keiner meiner damaligen Hamster mochte sein Laufrad. Sie ignorierten es konsequent. Und so blieb dieser kleine Traum unerfüllt.
+Viele Jahre später, jetzt als Erwachsener, habe ich durch meine Verlobte wieder einen Hamster. Und dieser ist das genaue Gegenteil. Er liebt sein Rad und verbringt jede Nacht mit großer Freude darin. Man kann sich vorstellen, was passierte: Der alte Kindheitstraum war sofort wieder da! Dieses Mal hatte ich bereits durch andere Projekte auch die nötigen Fertigkeiten, um ihn wahr werden zu lassen.
 
-Viele Jahre später, jetzt als Erwachsener, habe ich durch meine Verlobte wieder einen Hamster. Und dieser ist das genaue Gegenteil. Er liebt sein Rad und verbringt mit großer Freude jede Nacht darin. Man kann sich vorstellen, was passierte: Der alte Kindheitstraum war sofort wieder da! Dieses Mal hatte ich bereits durch andere Projekte auch die nötigen Fertigkeiten, um ihn wahr werden zu lassen.
+##„Bauen ja – stören nein!“
 
-#### „Bauen ja – stören nein!“
-
-Die Überzeugungsarbeit bei meiner Verlobten dauerte zum Glück nicht lange, aber sie steckte mir sofort ganz klare Grenzen für das Projekt: Der Hamster durfte auf keinen Fall gestört, niemals durch Kabel oder Sensoren gefährdet werden, zudem musste das wertvolle Getzoo-Korklaufrad absolut intakt bleiben.
-
-Das war eine echte Herausforderung, denn meine ersten Ideen waren damit sofort vom Tisch. Sensoren, die einen Schall aussenden, könnte er hören und sich gestört fühlen. Sensoren, die Licht aussenden, wie eine Lichtschranke, könnten ihn nachts stören, besonders da das Licht im gesamten Nagarium reflektiert würde. Mechanische Sensoren wiederum würden das Rad zu sehr abbremsen und den Laufwiderstand erhöhen.
-
+Die Überzeugungsarbeit bei meiner Verlobten dauerte zum Glück nicht lange, aber sie steckte mir sofort ganz klare Grenzen für das Projekt: Der Hamster durfte auf keinen Fall gestört und niemals durch Kabel oder Sensoren gefährdet werden. Zudem musste das wertvolle Getzoo-Korklaufrad absolut intakt bleiben.
+Das war eine echte Herausforderung, denn meine ersten Ideen waren damit sofort vom Tisch. Sensoren, die einen Schall aussenden, könnte er hören und sich gestört fühlen. Sensoren, die Licht aussenden, wie eine Lichtschranke, könnten ihn nachts stören, besonders da das Licht im gesamten Nagarium reflektiert werden würde. Mechanische Sensoren wiederum würden das Rad zu sehr abbremsen und den Laufwiderstand erhöhen.
 Die Wahl fiel daher auf einen sogenannten "induktiven Sensor". Dieser reagiert einfach, wenn ein Stück Metall an seiner Sensorfläche vorbeigeführt wird – komplett kontaktlos, ohne Geräusche und ohne störendes Licht. Die perfekte hamstersichere Lösung.
+Als "Gehirn" des Ganzen kam für mich nur ein winziger Mini-Computer infrage (für Technik-Fans: ein Espressif ESP32-C6), da ich mit diesem Chip bereits mehrere andere Smart-Home-Projekte umgesetzt habe.
 
-Als "Gehirn" des Ganzen kam für mich nur ein winziger Mini-Computer infrage (ein ESP32-C6), da ich mit diesem Chip bereits mehrere andere Smart-Home-Projekte umgesetzt habe.
+##„Vom Küchentisch zum 3D-Druck"
 
-#### „Vom Küchentisch zum 3D-Druck"
+Die erste Hürde war technischer Natur: Der Sensor arbeitet mit einer anderen Stromspannung (12 Volt) als der Mini-Computer (5 Volt). Ich konnte sie also nicht einfach verbinden, ohne den Chip zu zerstören. Ich musste mir eine kleine Schaltung überlegen, um die Spannung auf ein sicheres Niveau für den Mini-Computer zu bringen.
+Der allererste Versuchsaufbau fand auf einem kleinen Test-Board statt: Mit ein paar Kabeln, dem Laptop zum Programmieren und dem Laufrad. Hier war dann auch bereits der Sensor final am Laufrad befestigt. Als Metall, das den Sensor betätigen soll, habe ich vier Reißbrettstifte ins Rad eingedrückt und geklebt. Eine Veränderung am Rad, die meine Verlobte akzeptiert hat und die den Hamster nicht stört oder gefährdet.
+Dieser provisorische Aufbau mit dem Test-Board wirkte mir aber auf Dauer viel zu unprofessionell und alles andere als eine dauerhafte Lösung. Ich habe daher eine richtige, professionellere Platine entworfen, auf der alle Komponenten ihren festen Platz haben. Diese war auch nicht teuer und hat nur ein paar Euro gekostet. Damit war das Kabel-Chaos beseitigt. Als die Platine da war und bestückt, konnte es ans Entwerfen eines Gehäuses gehen. Dieses habe ich am Laptop in 3D konstruiert und mit Hilfe meines 3D-Druckers gefertigt.
 
-(Details siehe technischer Abschnitt oben)
+##Die Daten-Fabrik: Was passiert hinter den Kulissen?
 
-Der allererste Versuchsaufbau fand auf einem kleinen Test-Board statt. Mit ein paar Kabeln, dem Laptop zum Programmieren und dem Laufrad - und ja, das Ganze fand in der Küche statt. Hier war dann auch bereits der Sensor final am Laufrad befestigt. Als Metall, das den Sensor betätigen soll, habe ich vier Reißbrettstifte ins Rad eingedrückt und geklebt. Eine Veränderung am Rad, die meine Verlobte akzeptiert hat und die den Hamster nicht stört oder gefährdet.
+Nachdem die Hardware fertig und sicher verbaut war, ging es ans Programmieren. Das System hat eine klare Zweiteilung. Zuerst ist da der Mini-Computer am Laufrad, das eigentliche "Arbeitspferd". Er sitzt direkt am Rad, fängt jeden Impuls vom Sensor ab und zählt fleißig mit. Aus der Anzahl der Impulse (vier pro Umdrehung dank der Reißbrettstifte) und der Radgröße (31,4 cm) errechnet er die Gesamtdistanz, die tägliche Distanz (diese wird jeden Abend um 20 Uhr automatisch zurückgesetzt) und die aktuelle Geschwindigkeit.
+Diese Rohdaten sendet der Mini-Computer dann per WLAN an den zweiten Teil des Systems: meine Smart-Home-Zentrale (eine Software namens "Home Assistant"). Hier, in der digitalen Kommandozentrale, passieren die spannenden Dinge. Die Zentrale empfängt und speichert die Werte und stellt dann weitere Berechnungen an, wie zum Beispiel die Höchstgeschwindigkeit der letzten Nacht und die allgemeine Durchschnittsgeschwindigkeit (nur wenn der Hamster aktiv ist). Außerdem vergleicht sie diese Werte mit den bisherigen Bestleistungen und berechnet so, ob der Hamster einen neuen Geschwindigkeits- oder Tagesstrecken-Rekord aufgestellt hat.
 
-Dieser provisorische Aufbau wirkte mir aber auf Dauer viel zu unprofessionell. Ich habe daher eine richtige, professionellere Platine entworfen. Als die Platine da war und bestückt, konnte es ans Entwerfen eines Gehäuses gehen. Dieses habe ich am Laptop in 3D konstruiert und mit Hilfe meines 3D-Druckers gefertigt.
+##Der Lohn der Mühe: Tägliche Berichte und eine Weltreise
 
-#### Der Lohn der Mühe: Tägliche Berichte und eine Weltreise
-
-Der wahre Zauber dieses Projekts zeigt sich jeden Morgen. Pünktlich beim Aufstehen bekomme ich eine Push-Nachricht, die mir verrät, wie viele Kilometer der Hamster gelaufen ist und ob er einen neuen Rekord aufgestellt hat.
-
-Als Krönung der ganzen Datensammelei habe ich das "Hamster-Reisetagebuch" ins Leben gerufen. Das Beeindruckendste daran: Die Strecke von über 250 km ist er in nicht einmal einem Monat gelaufen (Start der Reise war der 5. Oktober 2025)!
-
+Der wahre Zauber dieses Projekts zeigt sich jeden Morgen und macht das Aufstehen so viel schöner. Da mein Handy ebenfalls mit meinem Smart-Home verbunden ist, bekomme ich pünktlich beim Aufstehen eine Push-Nachricht. Sie verrät mir, wie viele Kilometer der Hamster in der Nacht gelaufen ist und ob er es geschafft hat einen neuen Strecken- oder Geschwindigkeitsrekord aufzustellen.
+Für all diese Daten habe ich ein übersichtliches Dashboard auf dem Tablet eingerichtet. Dort sehe ich die komplette Analyse der letzten Nacht und kann auch in den vergangenen Werten stöbern.
+Als Krönung der ganzen Datensammlerei habe ich ein "Hamster-Reisetagebuch" ins Leben gerufen. Denn was ist eine Zahl wie 251,39 km schon wert, wenn man sie nicht in ein Abenteuer verwandelt? Diese Strecke ist er übrigens in weniger als einem Monat gelaufen (Start der Reise: 5. Oktober 2025)! Das Dashboard zeigt jetzt eine virtuelle Reise, auf der wir (Luftlinie) verfolgen, wie weit er von zu Hause entfernt ist.
 Die Liste der Ziele habe ich mir übrigens nicht mühsam von Hand rausgesucht. Statt einer einzelnen Route habe ich eine KI gebeten, mir ganz viele interessante Orte zu nennen, die in verschiedener Luftlinien-Entfernung von unserem Zuhause liegen – bis hin zum ultimativen Ziel: Vancouver, 9.650 km entfernt!
-
 Und so ist unser Hamster jetzt ein Weltenbummler. Jeden Morgen schauen wir, wo er steckt: Trier (35 km) und Luxemburg (85 km) hat er locker passiert, Paris (195 km) war ein kurzer Stopp, und Stuttgart (215 km) liegt auch schon hinter ihm.
+Ob er es eines Tages wirklich bis nach Kanada schafft? Ich bin gespannt! Aber eines hat mir das Projekt jetzt schon gezeigt: Diese kleinen Tiere sind unglaubliche Athleten, und mein Kindheitstraum war jeden einzelnen Lötkolben-Einsatz wert.
 
-Ich bin gespannt, ob er es eines Tages wirklich bis nach Kanada schafft!
 </details>
 
 ---
