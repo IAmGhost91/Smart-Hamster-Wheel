@@ -129,7 +129,7 @@ sensor:
     filters:
       - multiply: !lambda 'return 1.0 / ${impulse_pro_umdrehung};'
       - sliding_window_moving_average:
-          window_size: 6
+          window_size: 3
           send_every: 1
 
   # 3. Sensor für die Gesamt-Distanz
