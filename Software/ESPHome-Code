@@ -51,16 +51,18 @@ time:
 interval:
   - interval: 10s
     then:
-      # 1. ZUERST den U/min-Sensor aktualisieren.
+      # Zuerst die Zeit für ein besseres Debuging
+      - component.update: hamsterrad_uhrzeit
+
+      # Dann U/min-Sensor aktualisieren wichtig!
       - component.update: hamsterrad_u_min_sensor
 
-      # 2. DANACH alle anderen Sensoren aktualisieren.
+      # DANACH alle anderen Sensoren aktualisieren.
+      - component.update: geschwindigkeit_sensor
+      - component.update: impulse_gesamt
       - component.update: umdrehungen_gesamt_sensor
       - component.update: distanz_gesamt
-      - component.update: geschwindigkeit_sensor
       - component.update: distanz_taglich
-      - component.update: impulse_gesamt
-      - component.update: hamsterrad_uhrzeit
 
 
 ######################
