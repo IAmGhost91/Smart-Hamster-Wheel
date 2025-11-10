@@ -47,6 +47,21 @@ time:
           - lambda: 'id(hamsterrad_impulse_taglich) = 0;'
           - component.update: distanz_taglich
 
+# Interval Sensor-Daten an Home Assistant senden
+interval:
+  - interval: 10s
+    then:
+      # 1. ZUERST den U/min-Sensor aktualisieren.
+      - component.update: hamsterrad_u_min_sensor
+
+      # 2. DANACH alle anderen Sensoren aktualisieren.
+      - component.update: umdrehungen_gesamt_sensor
+      - component.update: distanz_gesamt
+      - component.update: geschwindigkeit_sensor
+      - component.update: distanz_taglich
+      - component.update: impulse_gesamt
+      - component.update: hamsterrad_uhrzeit
+
 
 ######################
 # GLOBALE VARIABLEN & KONSTANTEN
@@ -107,7 +122,7 @@ sensor:
     unit_of_measurement: 'U'
     icon: "mdi:rotate-right"
     state_class: total_increasing
-    update_interval: 10s
+    update_interval: never
     lambda: |-
       return (float)id(hamsterrad_impulse_gesamt) / ${impulse_pro_umdrehung};
     accuracy_decimals: 2
@@ -120,7 +135,7 @@ sensor:
     icon: "mdi:rotate-3d-variant"
     state_class: measurement
     device_class: frequency # Semantisch korrekte Klasse für Frequenz
-    update_interval: 10s     # Der Sensor hat jetzt seinen eigenen Taktgeber
+    update_interval: never
     lambda: |-
       // Die komplette Logik befindet sich jetzt hier:
       float impulse_pro_minute = id(hamsterrad_zaehler_intervall) * 6.0;
@@ -140,7 +155,7 @@ sensor:
     device_class: distance
     icon: "mdi:map-marker-distance"
     state_class: total_increasing
-    update_interval: 10s
+    update_interval: never
     lambda: |-
       return (float)id(hamsterrad_impulse_gesamt) / ${impulse_pro_umdrehung} * id(rad_umfang_meter) / 1000.0;
     accuracy_decimals: 3
@@ -152,7 +167,7 @@ sensor:
     device_class: speed
     icon: "mdi:speedometer-slow"
     state_class: measurement
-    update_interval: 10s
+    update_interval: never
     lambda: |-
       float umdrehungen_pro_minute = id(hamsterrad_u_min_sensor).state;
       return umdrehungen_pro_minute * id(rad_umfang_meter) * 60.0 / 1000.0;
@@ -166,7 +181,7 @@ sensor:
     device_class: distance
     icon: "mdi:arrow-left-right"
     state_class: total_increasing
-    update_interval: 10s
+    update_interval: never
     lambda: |-
       return (float)id(hamsterrad_impulse_taglich) / ${impulse_pro_umdrehung} * id(rad_umfang_meter) / 1000.0;
     accuracy_decimals: 3
@@ -178,7 +193,7 @@ sensor:
     unit_of_measurement: 'imp'
     icon: "mdi:counter"
     state_class: total_increasing
-    update_interval: 10s
+    update_interval: never
     lambda: |-
       return (float)id(hamsterrad_impulse_gesamt);
     accuracy_decimals: 0
@@ -195,8 +210,7 @@ text_sensor:
     id: hamsterrad_uhrzeit
     icon: "mdi:clock-check-outline"
     internal: true
-    # Aktualisiert sich alle 30 Sekunden
-    update_interval: 30s 
+    update_interval: never
     lambda: |-
       // Greift auf deine Uhr-Komponente "ha_time" zu
       if (id(ha_time).now().is_valid()) {
